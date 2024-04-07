@@ -218,7 +218,11 @@ class RO
             return $value;
         else
         if( $type === TYPE_BINARY )
+        {
+            if( strlen( $value ) === 32 )
+                return '0x' . bin2hex( $value );
             return 'base64:' . base64_encode( $value );
+        }
 
         w8_err( 'unknown type ' . $type );
     }
