@@ -475,6 +475,7 @@ function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $sum
     if( $summary )
     {
         require_once 'include/BlockchainBalances.php';
+        function GetHeight_LeaseReset(){ return 0; }
         $changes = [];
         foreach( $pts as $ts )
             BlockchainBalances::processChanges( $ts, $changes );
