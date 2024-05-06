@@ -521,7 +521,10 @@ function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $sum
                     else
                     {
                         $last_a = $a;
-                        $diff .= str_pad( w8io_a( $a ), 35, ' ', STR_PAD_LEFT ) . ': ' . $amount . $asset . PHP_EOL;
+                        if( strlen( $a ) === 35 )
+                            $diff .= w8io_a( $a ) . ': ' . $amount . $asset . PHP_EOL;
+                        else
+                            $diff .= '<span>' . str_repeat( '—', 34 - strlen( $a ) ) . ' </span>' . w8io_a( $a ) . ': ' . $amount . $asset . PHP_EOL;
                     }
                 }
             }
