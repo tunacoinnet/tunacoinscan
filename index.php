@@ -484,10 +484,13 @@ function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $sum
             $last_a = '';
             foreach( $changes as $a => $diffs )
             {
+                if( $a <= 0 )
+                    continue;
+
                 $a = $RO->getAddressById( $a );
                 foreach( $diffs as $asset => $amount )
                 {
-                    if( $amount === 0  )
+                    if( $amount === 0 )
                         continue;
                     
                     if( $asset > 0 )
