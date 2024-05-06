@@ -1026,6 +1026,7 @@ if( $address === 'tx' && $f !== false )
                 echo json_encode( [ 'error' => "getTransactionById( $f ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
             else
             {
+                echo '<a href="' . W8IO_ROOT . 'tx/' . $f . '">' . $f . '</a>' . PHP_EOL . PHP_EOL;
                 w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3, true );
 
                 $data = w8io_get_txkey_data( $txid );
@@ -1103,7 +1104,7 @@ if( $address === 'o' && $f !== false )
                 if( $txid === false )
                     echo json_encode( [ 'error' => "getTxKeyByTxId( $id ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . PHP_EOL;
                 else
-                    w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3, true );
+                    w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3 );
             }
 
             $json = htmlfilter( $json );
