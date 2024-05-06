@@ -67,7 +67,7 @@ class BlockchainBalances
         $this->parser = $parser;
     }
 
-    private function finalizeChanges( $aid, $temp_procs, &$procs )
+    private static function finalizeChanges( $aid, $temp_procs, &$procs )
     {
         foreach( $temp_procs as $asset => $amount )
         {
@@ -164,7 +164,7 @@ class BlockchainBalances
         }
     }
 
-    public function processChanges( $ts, &$procs )
+    public static function processChanges( $ts, &$procs )
     {
         $type = $ts[TYPE];
         $amount = $ts[AMOUNT];
@@ -263,7 +263,7 @@ class BlockchainBalances
                 }
                 else
                 {
-                    return $this->finalizeChanges( $ts[B], [ asset_in( $type ) => 1, $asset => +$amount ], $procs );
+                    return self::finalizeChanges( $ts[B], [ asset_in( $type ) => 1, $asset => +$amount ], $procs );
                 }
                 break;
 
@@ -271,9 +271,9 @@ class BlockchainBalances
                 w8_err( 'unknown tx type = ' . $type );
         }
 
-        $this->finalizeChanges( $ts[A], $procs_a, $procs );
+        self::finalizeChanges( $ts[A], $procs_a, $procs );
         if( isset( $procs_b ) )
-            $this->finalizeChanges( $ts[B], $procs_b, $procs );
+            self::finalizeChanges( $ts[B], $procs_b, $procs );
     }
 
     public function getAllWaves()

@@ -520,6 +520,14 @@ class RO
         if( $id === 0 )
             return '8_Waves';
 
+        static $cache =
+        [
+        ];
+
+        $cached = $cache[$id] ?? null;
+        if( $cached !== null )
+            return $cached;
+
         if( !isset( $this->getAssetInfoById ) )
         {
             $this->getAssetInfoById = $this->db->db->prepare( 'SELECT r1 FROM assetInfo WHERE r0 = ?' );
@@ -531,10 +539,9 @@ class RO
             w8_err();
 
         $r = $this->getAssetInfoById->fetchAll();
-        if( isset( $r[0] ) )
-            return $r[0][0];
-
-        return false;
+        $r = $r[0][0] ?? false;
+        $cache[$id] = $r;
+        return $r;
     }
 
     private $getFunctionById;

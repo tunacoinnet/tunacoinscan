@@ -465,15 +465,74 @@ function w8io_sign( $sign )
     return '';
 }
 
-function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d )
+function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $summary = false )
 {
     global $RO;
     global $z;
 
     $pts = $RO->getPTSByAddressId( $aid, $where, $count + 1, $uid, $d );
-    //$pts = $RO->getPTSAtHeight( 2214328 );
 
-    //$wtxs = $api->get_transactions_where( $aid, $where, $uid, $count + 1 );
+    if( $summary )
+    {
+        require_once 'include/BlockchainBalances.php';
+        $changes = [];
+        foreach( $pts as $ts )
+            BlockchainBalances::processChanges( $ts, $changes );
+        $diff = '';
+        {
+            $last_a = '';
+            foreach( $changes as $a => $diffs )
+            {
+                $a = $RO->getAddressById( $a );
+                foreach( $diffs as $asset => $amount )
+                {
+                    if( $amount === 0  )
+                        continue;
+                    
+                    if( $asset > 0 )
+                    {
+                        $sign = $amount < 0 ? -1 : 1;
+                        $info = $RO->getAssetInfoById( $asset );
+                        $name = substr( $info, 2 );
+                        $decimals = ( $decimals = $info[0] ) === 'N' ? 0 : (int)$decimals;
+                        $amount = w8io_amount( $amount, $decimals, 0, false );
+                        $amount = ' ' . w8io_sign( $sign ) . $amount;
+                        $asset = ' <a href="' . W8IO_ROOT . $address . '/f/' . $asset . '">' . $name . '</a>';
+                    }
+                    else if( $asset === 0 )
+                    {
+                        $sign = $amount < 0 ? -1 : 1;
+                        $amount = ' ' . w8io_sign( $sign ) . w8io_amount( $amount, 8, 0, false );
+                        $asset = ' <a href="' . W8IO_ROOT . $address . '/f/Waves">Waves</a>';
+                    }
+                    else if( $asset === WAVES_LEASE_ASSET )
+                    {
+                        $sign = $amount < 0 ? -1 : 1;
+                        $amount = ' ' . w8io_sign( $sign ) . w8io_amount( $amount, 8, 0, false );
+                        $asset = ' <a href="' . W8IO_ROOT . $address . '/f/Waves">Waves (GENERATOR)</a>';
+                    }
+                    else
+                        continue;
+                    
+                    if( $last_a === $a )
+                    {
+                        $diff .= '<span>———————————————————————————————————</span>: ' . $amount . $asset . PHP_EOL;
+                    }
+                    else
+                    {
+                        $last_a = $a;
+                        $diff .= w8io_a( $a ) . ': ' . $amount . $asset . PHP_EOL;
+                    }
+                }
+            }
+
+            if( $diff !== '' )
+            {
+                echo $diff;
+                echo PHP_EOL;
+            }
+        }
+    }
 
     $maxlen1 = 0;
     $maxlen2 = 0;
@@ -960,7 +1019,7 @@ if( $address === 'tx' && $f !== false )
                 echo json_encode( [ 'error' => "getTransactionById( $f ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
             else
             {
-                w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3 );
+                w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3, true );
 
                 $data = w8io_get_txkey_data( $txid );
                 if( count( $data ) > 0 )
@@ -1037,7 +1096,7 @@ if( $address === 'o' && $f !== false )
                 if( $txid === false )
                     echo json_encode( [ 'error' => "getTxKeyByTxId( $id ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . PHP_EOL;
                 else
-                    w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3 );
+                    w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3, true );
             }
 
             $json = htmlfilter( $json );
