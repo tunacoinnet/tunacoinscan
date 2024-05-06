@@ -263,6 +263,8 @@ function prettyAddress( $address )
 {
     if( strlen( $address ) === 35 )
         return substr( $address, 0, 6 ) . '&#183;&#183;&#183;' . substr( $address, -4 );
+    if( strlen( $address ) >= 32 )
+        return substr( $address, 0, 3 ) . '&#183;&#183;&#183;' . substr( $address, -3 );
     return $address;
 }
 
@@ -275,9 +277,13 @@ if( strlen( $address ) > 35 )
 function prolog()
 {
     global $address;
+    global $f;
     global $L;
 
     $L = (int)( $_COOKIE['L'] ?? 0 ) === 1;
+    $title = 'w8 &#183; ' . prettyAddress( $address );
+    if( $f !== false && ( is_numeric( $f ) || strlen( $f ) >= 32 ) )
+        $title .= ' &#183; ' . prettyAddress( $f );
     echo sprintf( '
 <!DOCTYPE html>
 <html>
@@ -296,7 +302,7 @@ function prolog()
     </head>
     <body>
         <pre>
-', empty( $address ) ? '' : ( 'w8 &#183; ' . prettyAddress( $address ) ), $L ? '-l' : '-n' );
+', $title, $L ? '-l' : '-n' );
 }
 
 function w8io_get_data( $address, $aid, $begin, $limit, $string )
@@ -1026,7 +1032,7 @@ if( $address === 'tx' && $f !== false )
                 echo json_encode( [ 'error' => "getTransactionById( $f ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
             else
             {
-                echo '<a href="' . W8IO_ROOT . 'tx/' . $f . '">' . $f . '</a>' . PHP_EOL . PHP_EOL;
+                echo 'tx &#183; <a href="' . W8IO_ROOT . 'tx/' . $f . '">' . $f . '</a>' . PHP_EOL . PHP_EOL;
                 w8io_print_transactions( false, 'r1 = ' . $txid, false, 1000, 'txs', 3, true );
 
                 $data = w8io_get_txkey_data( $txid );
