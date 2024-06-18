@@ -267,11 +267,39 @@ class RO
                 $query->execute( [ w8h2kg( $height ) ] );
                 foreach( $query as $ts )
                 {
-                    if( $ts[A] !== -1 )
+                    if( $ts[TYPE] !== 0 )
                         continue;
                     $generator = $ts[B];
                     $generators[$generator][$height] = $ts[AMOUNT] + ( $generators[$generator][$height] ?? 0 );
                 }
+            }
+
+            return $generators;
+        }
+    }
+
+    public function getGeneratorsFees( $blocks, $start = null )
+    {
+        if( isset( $start ) )
+        {
+            $start = w8h2kg( $start );
+            $start = $this->db->db->query( 'SELECT r0 FROM pts WHERE r1 = ' . $start )->fetchAll()[0][0];
+            $query = $this->db->db->query( 'SELECT * FROM pts WHERE r0 >= ' . $start . ' AND r2 = 0 ORDER BY r0 ASC LIMIT ' . $blocks );
+        }
+        else
+        {
+            $query = $this->db->db->query( 'SELECT * FROM pts WHERE r2 = 0 ORDER BY r0 DESC LIMIT ' . $blocks );
+        }
+
+        if( $query !== false )
+        {
+            $generators = [];
+            $height = $start;
+            foreach( $query as $ts )
+            {
+                $generator = $ts[B];
+                $height = w8k2h( $ts[TXKEY] );
+                $generators[$generator][$height] = $ts[AMOUNT] + ( $generators[$generator][$height] ?? 0 );
             }
 
             return $generators;

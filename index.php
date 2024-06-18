@@ -1165,7 +1165,7 @@ if( $address === 'GENERATORS' )
     require_once 'include/RO.php';
     $RO = new RO( W8DB );
 
-    $generators = $RO->getGenerators( $n, $arg );
+    $generators = $RO->getGeneratorsFees( $n, $arg );
 
     $Q = isset( $showtime ) ? 128 : 80;
     $infos = [];
