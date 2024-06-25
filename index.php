@@ -1092,11 +1092,13 @@ if( $address === 'tx' && $f !== false )
 else
 if( $address === 'o' && $f !== false )
 {
-    if( strlen( $f ) >= 32 )
+    if( strlen( $f ) >= 32 && 32 === strlen( wk()->base58Decode( $f ) ) )
     {
         prolog();
-        wk()->setNodeAddress( W8IO_MATCHER );
-        $json = wk()->fetch( '/matcher/transactions/' . $f );
+        $matcher = clone wk();
+        $matcher->setNodeAddress( W8IO_MATCHER );
+        $json = $matcher->fetch( '/matcher/transactions/' . $f );
+        unset( $matcher );
         if( $json === false || false === ( $json = wk()->json_decode( $json ) ) )
             echo json_encode( [ 'error' => "fetch( /matcher/transactions/$f ) failed" ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
         else
