@@ -533,6 +533,69 @@ class BlockchainParser
         }
     }
 
+    private function processElidedTransaction( $txkey, $tx )
+    {
+        switch( $tx['type'] )
+        {
+            case TX_INVOKE:
+                $this->appendTS( [
+                    UID =>      $this->getNewUid(),
+                    TXKEY =>    $txkey,
+                    TYPE =>     TX_INVOKE,
+                    A =>        $this->getSenderId( $tx['sender'] ),
+                    B =>        $this->getRecipientId( $tx['dApp'] ),
+                    ASSET =>    NO_ASSET,
+                    AMOUNT =>   0,
+                    FEEASSET => NO_ASSET,
+                    FEE =>      0,
+                    ADDON =>    0,
+                    GROUP =>    ELIDED_GROUP,
+                ] );
+                break;
+            case TX_ETHEREUM:
+                $payload = $tx['payload'];
+                switch( $payload['type'] )
+                {
+                    case 'invocation':
+                        $this->appendTS( [
+                            UID =>      $this->getNewUid(),
+                            TXKEY =>    $txkey,
+                            TYPE =>     TX_ETHEREUM,
+                            A =>        $this->getSenderId( $tx['sender'] ),
+                            B =>        $this->getRecipientId( $payload['dApp'] ),
+                            ASSET =>    NO_ASSET,
+                            AMOUNT =>   0,
+                            FEEASSET => NO_ASSET,
+                            FEE =>      0,
+                            ADDON =>    0,
+                            GROUP =>    ELIDED_GROUP,
+                        ] );
+                        break;
+
+                    default:
+                        w8_err( 'unknown failed payload type: ' . $payload['type'] );
+                }
+                break;
+            case TX_EXCHANGE:
+                $this->appendTS( [
+                    UID =>      $this->getNewUid(),
+                    TXKEY =>    $txkey,
+                    TYPE =>     TX_MATCHER,
+                    A =>        MATCHER,
+                    B =>        $this->getRecipientId( $tx['sender'] ),
+                    ASSET =>    NO_ASSET,
+                    AMOUNT =>   0,
+                    FEEASSET => NO_ASSET,
+                    FEE =>      0,
+                    ADDON =>    0,
+                    GROUP =>    ELIDED_GROUP,
+                ] );
+                break;
+            default:
+                w8_err( 'processElidedTransaction unknown type: ' . $tx['type'] );
+        }
+    }
+
     private function processGenesisTransaction( $txkey, $tx )
     {
         $this->appendTS( [
@@ -1412,6 +1475,8 @@ class BlockchainParser
                     break;
                 case 'script_execution_failed':
                     return $this->processFailedTransaction( $txkey, $tx );
+                case 'elided':
+                    return $this->processElidedTransaction( $txkey, $tx );
                 default:
                     w8_err( 'applicationStatus unknown: ' . $tx['applicationStatus'] );
             }

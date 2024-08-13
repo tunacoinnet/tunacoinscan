@@ -99,6 +99,7 @@ const WAVES_LEASE_ASSET = -2;
 const SPONSOR_ASSET = -3;
 
 const FAILED_GROUP = -1;
+const ELIDED_GROUP = -3;
 const ETHEREUM_TRANSFER_GROUP = -2;
 
 const EXPRESSION_FUNCTION = -1;

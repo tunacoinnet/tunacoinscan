@@ -642,9 +642,6 @@ function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $sum
             }
         }
 
-        if( $type == TX_ISSUE )
-            $type = 3;
-
         $a = $isa ? $address : $RO->getAddressById( $a );
         $b = $isb ? $address : $RO->getAddressById( $b );
 
@@ -746,6 +743,8 @@ function w8io_print_transactions( $aid, $where, $uid, $count, $address, $d, $sum
             {
                 if( $groupId === FAILED_GROUP )
                     $addon = '(failed)';
+                else if( $groupId === ELIDED_GROUP )
+                    $addon = '(elided)';
                 else if( $groupId === ETHEREUM_TRANSFER_GROUP )
                     $addon = '(transfer)';
                 else
@@ -1604,14 +1603,18 @@ else
         {
             if( is_numeric( $arg ) )
             {
-                if( $arg === '-1' )
+                $arg = (int)$arg;
+                if( $arg === FAILED_GROUP )
                     $arg = 'failed';
                 else
-                if( $arg === '-2' )
+                if( $arg === ELIDED_GROUP )
+                    $arg = 'elided';
+                else
+                if( $arg === ETHEREUM_TRANSFER_GROUP )
                     $arg = 'ethereum_transfer';
                 else
                 {
-                    $arg = $RO->getGroupById( (int)$arg );
+                    $arg = $RO->getGroupById( $arg );
                     if( $arg === false )
                         exit( 'unknown group' );
                     $first = $arg[0];
@@ -1637,6 +1640,9 @@ else
 
             if( $arg === 'failed' )
                 $arg = FAILED_GROUP;
+            else
+            if( $arg === 'elided' )
+                $arg = ELIDED_GROUP;
             else
             if( $arg === 'ethereum_transfer' )
                 $arg = ETHEREUM_TRANSFER_GROUP;
