@@ -158,6 +158,44 @@ if( $address === 'api' )
             apiexit( 503, [ 'code' => 503, 'message' => "too big diff: $now - $dbts = $diff > $threshold" ] );
         apiexit( 200, $diff );
     }
+    else
+    if( $f === 'data' && $arg !== false )
+    {
+        $address = $arg;
+        require_once 'include/RO.php';
+        $RO = new RO( W8DB );
+        $aid = $RO->getAddressIdByString( $address );
+        if( $aid === false )
+            apiexit( 404, [ 'code' => 404, 'message' => 'address not found' ] );
+
+        $data = [];
+        if( $arg3 !== false )
+        {
+            apiexit( 405, [ 'code' => 405, 'message' => 'method unavailable' ] );
+        }
+        else
+        if( $arg2 !== false )
+        {
+            $key = urldecode( $arg2 );
+            $kid = $RO->getIdByKey( $key );
+            if( $kid === false )
+                apiexit( 404, [ 'code' => 404, 'message' => 'key not found' ] );
+            [ $data, ] = w8io_get_data_key( $address, $key, $aid, $kid, PHP_INT_MAX, 1 );
+        }
+        else
+        {
+            [ $data, ] = w8io_get_data( $address, $aid, PHP_INT_MAX, 1000, '' );
+        }
+
+        $json = [];
+        foreach( $data as $r )
+        {
+            $k = $r['key'];
+            $v = $r['value'];
+            $json[$k] = $v;
+        }
+        apiexit( 200, $json );
+    }
 
     exit( http_response_code( 404 ) );
 }
