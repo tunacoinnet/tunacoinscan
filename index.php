@@ -159,6 +159,38 @@ if( $address === 'api' )
         apiexit( 200, $diff );
     }
     else
+    if( $f === 'balance' && $arg !== false )
+    {
+        $address = $arg;
+        require_once 'include/RO.php';
+        $RO = new RO( W8DB );
+        $aid = $RO->getAddressIdByString( $address );
+        if( $aid === false )
+            apiexit( 404, [ 'code' => 404, 'message' => 'address not found' ] );
+
+        $data = [];
+        if( $arg3 !== false )
+        {
+            apiexit( 405, [ 'code' => 405, 'message' => 'method unavailable' ] );
+        }
+        else
+        if( $arg2 !== false )
+        {
+            if( is_numeric( $arg2 ) )
+                $id = (int)$arg2;
+            else
+                $id = $RO->getIdByAsset( $arg2 );
+            $balance = $RO->getBalanceByAddressKeyId( $aid, $id );
+            if( $balance === false )
+                apiexit( 404, [ 'code' => 404, 'message' => 'balance not found' ] );
+            apiexit( 200, $balance );
+        }
+        else
+        {
+            apiexit( 405, [ 'code' => 405, 'message' => 'method unavailable' ] );
+        }
+    }
+    else
     if( $f === 'data' && $arg !== false )
     {
         $address = $arg;

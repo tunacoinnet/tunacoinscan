@@ -541,6 +541,24 @@ class RO
         return $balance;
     }
 
+    private $q_getBalanceByAddressKeyId;
+
+    public function getBalanceByAddressKeyId( $aid, $id )
+    {
+        if( !isset( $this->q_getBalanceByAddressId ) )
+        {
+            $this->q_getBalanceByAddressKeyId = $this->db->db->prepare( 'SELECT r3 FROM balances WHERE r1 = ? AND r2 = ?' );
+            if( $this->q_getBalanceByAddressKeyId === false )
+                w8_err();
+        }
+
+        if( false === $this->q_getBalanceByAddressKeyId->execute( [ $aid, $id ] ) )
+            w8_err();
+
+        $r = $this->q_getBalanceByAddressKeyId->fetchAll();
+        return $r[0][0] ?? false;
+    }
+
     private $getAssetInfoById;
 
     public function getAssetInfoById( $id )
