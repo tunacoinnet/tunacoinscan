@@ -1,6 +1,6 @@
-# w8io
+# TUNACOIN SCAN - Base (w8.io)
 
-[w8io](https://github.com/deemru/w8io) is a fast and techie Waves Platform blockchain explorer based on PHP and SQLite.
+TUNACOIN SCAN blockchain explorer based on PHP and SQLite.
 
 ## Basic usage
 - first run (fast, minimal indexes): `php w8_updater.php`
